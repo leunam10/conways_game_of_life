@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pylab as plt
+from matplotlib import cm
 from matplotlib import animation
 import random
 import os, sys
@@ -10,8 +11,25 @@ class GameOfLife:
     def __init__(self, nx_universe, ny_universe, nx, ny):
 
 
-        # initialize figure for grid animation #
-        self.figure, self.axes = plt.subplots()
+        # initialize figure for animation #
+        self.figure, (self.ax1, self.ax2) = plt.subplots(2,1, gridspec_kw={'height_ratios': [1, 5]})
+        
+        self.total_population_line, = self.ax1.plot([], [], c="k", lw=2)
+        self.alive_cells_line, = self.ax1.plot([], [], c="g", lw=2)
+        self.dead_cells_line, = self.ax1.plot([], [], c="r", lw=2)
+
+        self.ax1.set_ylabel("Population")
+        self.ax1.set(xlim=(0,1), ylim=(0,100))
+        
+        self.ax1.grid()
+        self.ax2.grid()
+
+        #manager = plt.get_current_fig_manager()
+        #manager.full_screen_toggle()
+
+        plt.axis('off')
+
+        cmap_personal = "Greys_r" #cm.get_cmap('Greys_r', 2)
         
         
         # grid dimensions #
@@ -27,8 +45,15 @@ class GameOfLife:
         self.initial_automa = np.random.randint(0, 2, size=(nx,ny))
 
         self.first_generation = self.matrix_padding(self.universe, self.initial_automa, int(self.nx_universe/2), int(self.ny_universe/2))
-        self.im = plt.imshow(self.first_generation, cmap="bwr", interpolation="none", vmin=0, vmax=1)
+        self.im = plt.imshow(self.first_generation, cmap=cmap_personal, interpolation="none", vmin=0, vmax=1)
 
+
+        self.counter_list = []
+        self.total_population_list = []
+        self.alive_cells_list = []
+        self.dead_cells_list = []
+        self.evolutions_list = []
+        
     def matrix_padding(self, A, B, r, c):
 
         """
@@ -62,13 +87,20 @@ T
         return A
         
     def first_generation_init(self):
-        
+
         self.im.set_data(self.first_generation)
+
         return [self.im]
         
 
+    
     def generation_evolution(self, generation):
 
+        n_generation = int(len(self.evolutions_list))
+
+        self.ax1.set(xlim=(0,len(self.evolutions_list)+10), ylim=(0,100))        
+        self.ax1.set_title("Generation: {}".format(n_generation))
+        
         evolution = self.im.get_array()
         # Previous evolution #
         evolution_prev = copy.copy(evolution)
@@ -82,16 +114,34 @@ T
                 evolution[cell_coord] = cell_status
                 
         print("Generation: "+str(generation+1))
-#        print(evolution)
 
+        self.evolutions_list.append(evolution)
         if(np.sum(evolution) == 0):
             print("Life ended at generation "+str(generation+1)+"\n")
             quit()
-        
-        self.im.set_array(evolution)
 
-        return [self.im]
-         
+        self.counter_list.append(generation+1)
+
+        n_total_population =
+        n_alive_cells =
+        n_dead_cells = 
+        
+        self.total_population_list.append(int(np.sum(evolution)))
+        self.alive_cells_list.append(n_alive_cells)
+        self.dead_cells_list.append(n_dead_cells)
+        
+        self.total_population_line.set_data(self.counter_list, self.total_population_list)
+        self.alive_cells_line.set_data(self.counter_list, self.alive_cells_list)
+        self.dead_cells_line.set_data(self.counter_list, self.dead_cells_list)
+        
+        self.im.set_data(evolution)
+
+        return [self.im], self.total_population_line, self.alive_cells_line,  self.dead_cells_line
+
+    def generative_evolution_graph(self, generation):
+    
+        pass
+    
     def cell_evolution(self, i, j, evolution):
 
         """ Gives as result if a cell is alive or dead based on the Conway's rules 
@@ -144,7 +194,6 @@ T
                 cell_status = 0
 
 
-#        print(cell_coord, alive_cells, cell_status)
         return cell_status
 
     def eight_connected_neighbours(self, x, y):
@@ -179,30 +228,25 @@ T
         return results
     
     
-    
     def make_animation(self):
 
-        ani = animation.FuncAnimation(self.figure, self.generation_evolution, init_func=self.first_generation_init, frames=200, interval=50, blit=True, repeat=False)
+        ani = animation.FuncAnimation(self.figure, self.generation_evolution, init_func=self.first_generation_init, frames=100, interval=50, blit=False, repeat=False)
 
-
-        #plt.title("Generation: "+str(generation))
-        plt.axis('off')
-
-        manager = plt.get_current_fig_manager()
-        manager.full_screen_toggle()
+#        plt.title("Generation: "+str(n_generation))
         plt.show()
-        
+
 if __name__ == "__main__":
 
 
-    nx_universe = 50
-    ny_universe = 50
-    nx = 20
-    ny = 20
+    nx_universe = 100
+    ny_universe = 100
+    nx = 10
+    ny = 10
 
     
     GameOfLife = GameOfLife(nx_universe, ny_universe, nx, ny)
     GameOfLife.make_animation()
+#    GameOfLife.make_graph()
 
 
 
