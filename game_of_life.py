@@ -15,8 +15,6 @@ class GameOfLife:
         self.figure, (self.ax1, self.ax2) = plt.subplots(2,1, gridspec_kw={'height_ratios': [1, 5]})
         
         self.total_population_line, = self.ax1.plot([], [], c="k", lw=2)
-        self.alive_cells_line, = self.ax1.plot([], [], c="g", lw=2)
-        self.dead_cells_line, = self.ax1.plot([], [], c="r", lw=2)
 
         self.ax1.set_ylabel("Population")
         self.ax1.set(xlim=(0,1), ylim=(0,100))
@@ -99,9 +97,12 @@ T
         n_generation = int(len(self.evolutions_list))
 
         self.ax1.set(xlim=(0,len(self.evolutions_list)+10), ylim=(0,100))        
+
         self.ax1.set_title("Generation: {}".format(n_generation))
         
         evolution = self.im.get_array()
+        self.ax1.set(xlim=(0,len(self.evolutions_list)+10), ylim=(0,np.sum(generation)+50))        
+
         # Previous evolution #
         evolution_prev = copy.copy(evolution)
 
@@ -122,21 +123,13 @@ T
 
         self.counter_list.append(generation+1)
 
-        n_total_population =
-        n_alive_cells =
-        n_dead_cells = 
         
         self.total_population_list.append(int(np.sum(evolution)))
-        self.alive_cells_list.append(n_alive_cells)
-        self.dead_cells_list.append(n_dead_cells)
         
-        self.total_population_line.set_data(self.counter_list, self.total_population_list)
-        self.alive_cells_line.set_data(self.counter_list, self.alive_cells_list)
-        self.dead_cells_line.set_data(self.counter_list, self.dead_cells_list)
-        
+        self.total_population_line.set_data(self.counter_list, self.total_population_list)        
         self.im.set_data(evolution)
 
-        return [self.im], self.total_population_line, self.alive_cells_line,  self.dead_cells_line
+        return [self.im], self.total_population_line
 
     def generative_evolution_graph(self, generation):
     
